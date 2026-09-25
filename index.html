@@ -50,6 +50,193 @@
 
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- Ajustes do rodapé e do painel de preferências de cookies -->
+
+    <style>
+        .rodape__final {
+            display: grid;
+            grid-template-columns: repeat(5, max-content);
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            font-size: 0.75rem;
+        }
+
+        .rodape__legal {
+            display: contents;
+        }
+
+        .rodape__final p,
+        .rodape__link-legal,
+        .rodape__cookies {
+            margin: 0;
+            padding: 0;
+            color: rgba(255, 252, 248, 0.58);
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 400;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
+        .rodape__link-legal,
+        .rodape__cookies {
+            text-decoration: none;
+            transition: color 0.3s, opacity 0.3s;
+        }
+
+        .rodape__cookies {
+            display: inline-block;
+            width: auto;
+            border: 0;
+            background: transparent;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-text-fill-color: currentColor;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .rodape__link-legal:hover,
+        .rodape__cookies:hover {
+            color: var(--cor-branco, #fffcf8);
+        }
+
+        .rodape__link-legal:focus-visible,
+        .rodape__cookies:focus-visible {
+            outline: 2px solid var(--cor-branco, #fffcf8);
+            outline-offset: 4px;
+        }
+
+        .aviso-cookies[hidden] {
+            display: none !important;
+        }
+
+        .aviso-cookies {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2000;
+        }
+
+        .aviso-cookies__conteudo {
+            width: min(760px, 100%);
+            margin: 0 auto;
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 28px;
+            border: 1px solid rgba(96, 73, 61, 0.22);
+            border-radius: 12px;
+            background: #fffaf6;
+            box-shadow: 0 14px 42px rgba(47, 37, 32, 0.22);
+        }
+
+        .aviso-cookies__texto {
+            color: #493a33;
+            font-size: 0.78rem;
+            line-height: 1.65;
+        }
+
+        .aviso-cookies__texto strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #302622;
+            font-size: 0.9rem;
+        }
+
+        .aviso-cookies__texto p {
+            margin: 0;
+        }
+
+        .aviso-cookies__texto a {
+            display: inline-block;
+            margin-top: 6px;
+            color: #60493d;
+            text-underline-offset: 3px;
+        }
+
+        .aviso-cookies__acoes {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .aviso-cookies__botao {
+            min-width: 96px;
+            padding: 10px 16px;
+            border: 1px solid #60493d;
+            border-radius: 999px;
+            background: transparent;
+            color: #60493d;
+            font: inherit;
+            font-size: 0.76rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .aviso-cookies__botao--aceitar {
+            background: #60493d;
+            color: #ffffff;
+        }
+
+        .aviso-cookies__botao:hover {
+            background: #49372f;
+            color: #ffffff;
+        }
+
+        .aviso-cookies__botao:focus-visible {
+            outline: 2px solid #302622;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 1100px) {
+            .rodape__final {
+                grid-template-columns: repeat(2, max-content);
+                justify-content: start;
+                gap: 12px 32px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .rodape__final {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .rodape__final p,
+            .rodape__link-legal,
+            .rodape__cookies {
+                white-space: normal;
+            }
+
+            .aviso-cookies {
+                right: 12px;
+                bottom: 12px;
+                left: 12px;
+            }
+
+            .aviso-cookies__conteudo {
+                padding: 20px;
+                align-items: stretch;
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            .aviso-cookies__acoes {
+                width: 100%;
+            }
+
+            .aviso-cookies__botao {
+                flex: 1;
+            }
+        }
+    </style>
+
     <!-- Informações estruturadas para buscadores -->
 
     <script type="application/ld+json">
@@ -1184,9 +1371,6 @@
     </footer>
 
     <script src="js/script.js"></script>
-
-
-    <script src="js/script.js"></script>
     <div class="aviso-cookies" id="aviso-cookies" role="dialog" aria-labelledby="titulo-cookies" hidden>
         <div class="aviso-cookies__conteudo">
 
@@ -1226,7 +1410,136 @@
         </div>
     </div>
 
-    <script src="./js/analytics.js" defer></script>
+    <script>
+        (() => {
+            "use strict";
+
+            const measurementId = "G-CKJEM9NY26";
+            const consentKey = "michaela_cookie_consent_v1";
+            const banner = document.querySelector("#aviso-cookies");
+            const acceptButton = document.querySelector("[data-cookie-aceitar]");
+            const rejectButton = document.querySelector("[data-cookie-recusar]");
+            const settingsButton = document.querySelector("[data-cookie-configurar]");
+
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = window.gtag || function () {
+                window.dataLayer.push(arguments);
+            };
+
+            window.gtag("consent", "default", {
+                analytics_storage: "denied",
+                ad_storage: "denied",
+                ad_user_data: "denied",
+                ad_personalization: "denied",
+                wait_for_update: 500
+            });
+
+            let analyticsLoaded = false;
+
+            const readConsent = () => {
+                try {
+                    return window.localStorage.getItem(consentKey);
+                } catch {
+                    return null;
+                }
+            };
+
+            const saveConsent = (value) => {
+                try {
+                    window.localStorage.setItem(consentKey, value);
+                } catch {
+                    // O site continua funcionando mesmo se o armazenamento estiver bloqueado.
+                }
+            };
+
+            const loadAnalytics = () => {
+                if (analyticsLoaded || document.querySelector("script[data-google-analytics]")) {
+                    return;
+                }
+
+                analyticsLoaded = true;
+
+                const googleScript = document.createElement("script");
+                googleScript.async = true;
+                googleScript.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+                googleScript.dataset.googleAnalytics = "true";
+                document.head.appendChild(googleScript);
+
+                window.gtag("js", new Date());
+                window.gtag("config", measurementId);
+            };
+
+            const grantAnalytics = () => {
+                window.gtag("consent", "update", {
+                    analytics_storage: "granted"
+                });
+                loadAnalytics();
+            };
+
+            const denyAnalytics = () => {
+                window.gtag("consent", "update", {
+                    analytics_storage: "denied"
+                });
+            };
+
+            const showBanner = () => {
+                if (!banner) {
+                    return;
+                }
+
+                banner.hidden = false;
+                window.setTimeout(() => acceptButton?.focus(), 0);
+            };
+
+            const hideBanner = () => {
+                if (banner) {
+                    banner.hidden = true;
+                }
+            };
+
+            acceptButton?.addEventListener("click", () => {
+                saveConsent("accepted");
+                grantAnalytics();
+                hideBanner();
+            });
+
+            rejectButton?.addEventListener("click", () => {
+                saveConsent("rejected");
+                denyAnalytics();
+                hideBanner();
+            });
+
+            settingsButton?.addEventListener("click", showBanner);
+
+            document.addEventListener("click", (event) => {
+                const whatsappLink = event.target.closest(
+                    'a[href*="wa.me"], a[href*="api.whatsapp.com"], a[href*="whatsapp.com"]'
+                );
+
+                if (!whatsappLink || readConsent() !== "accepted") {
+                    return;
+                }
+
+                window.gtag("event", "generate_lead", {
+                    method: "whatsapp",
+                    link_text: whatsappLink.textContent.trim(),
+                    transport_type: "beacon"
+                });
+            });
+
+            const savedConsent = readConsent();
+
+            if (savedConsent === "accepted") {
+                grantAnalytics();
+                hideBanner();
+            } else if (savedConsent === "rejected") {
+                denyAnalytics();
+                hideBanner();
+            } else {
+                showBanner();
+            }
+        })();
+    </script>
 </body>
 
 </html>
